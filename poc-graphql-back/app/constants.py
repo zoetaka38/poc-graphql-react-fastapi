@@ -1,0 +1,2 @@
+# APIキーのヘッダ名
+API_KEY_NAME = "X-TEST-API-KEY"

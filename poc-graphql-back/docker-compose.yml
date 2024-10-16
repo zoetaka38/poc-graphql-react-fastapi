@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  graphql-api:
+    build: .
+    volumes:
+      - ./:/usr/src/app/
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
+      - $HOME/.aws/config:/root/.aws/config:ro
+    ports:
+      - 8010:80
+    command:
+      [
+        "uvicorn",
+        "app.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "80",
+        "--reload",
+      ]
+    environment:
+      - TZ=Asia/Tokyo
+      - LC_CTYPE=C.UTF-8
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - APP_CONFIG_FILE=local
+      - WATCHFILES_FORCE_POLLING=true
+    env_file:
+      - ./app/config/${STAGE}.env
+    depends_on:
+      - graphql-db
+      - graphql-redis
+
+  graphql-db:
+    image: postgres:14.1
+    container_name: graphql-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Test1234
+      TZ: "Asia/Tokyo"
+    ports:
+      - "5432:5432"
+
+  graphql-redis:
+    image: redis:6.2.6
+    container_name: graphql-redis
+    ports:
+      - "6379:6379"
